@@ -71,4 +71,3 @@ jobs:
           path: vial-qmk/.build/cheapino2-totem-vial.uf2
           if-no-files-found: error
           retention-days: 30
-
