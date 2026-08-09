@@ -1,0 +1,34 @@
+// Copyright 2026 dwarfsawman
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#pragma once
+
+// Preserve the UID of the firmware that shipped on this keyboard so the
+// pre-migration .vil backup remains restorable.
+#define VIAL_KEYBOARD_UID {0x79, 0xED, 0x40, 0xBB, 0x09, 0x8B, 0xC1, 0x9E}
+#define VIAL_UNLOCK_COMBO_ROWS {4, 0}
+#define VIAL_UNLOCK_COMBO_COLS {10, 4}
+
+#define DYNAMIC_KEYMAP_LAYER_COUNT 5
+// Keep Tap Dance and Combo slot counts equal as a compatibility workaround
+// for vial-keymap-c-editor f142b1b, which swaps these two counts while parsing.
+#define VIAL_TAP_DANCE_ENTRIES 9
+#define VIAL_COMBO_ENTRIES 9
+#define VIAL_KEY_OVERRIDE_ENTRIES 4
+
+// ZMK hold-tap values from the Totem configuration.
+#undef TAPPING_TERM
+#define TAPPING_TERM 280
+#define QUICK_TAP_TERM 175
+#define PERMISSIVE_HOLD
+
+#define COMBO_TERM 30
+
+// The LED can be dimmed or disabled, but firmware and Vial cannot exceed 5.
+#undef RGBLIGHT_DEFAULT_HUE
+#undef RGBLIGHT_DEFAULT_SAT
+#undef RGBLIGHT_DEFAULT_VAL
+#define RGBLIGHT_DEFAULT_HUE 128
+#define RGBLIGHT_DEFAULT_SAT 255
+#define RGBLIGHT_DEFAULT_VAL 5
+#define RGBLIGHT_LIMIT_VAL 5

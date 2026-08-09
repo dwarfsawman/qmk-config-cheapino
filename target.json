@@ -1,0 +1,11 @@
+{
+    "include": [
+        {
+            "name": "cheapino2-totem-vial",
+            "keyboard": "cheapino",
+            "keymap": "vial",
+            "target": "uf2",
+            "flags": ""
+        }
+    ]
+}
