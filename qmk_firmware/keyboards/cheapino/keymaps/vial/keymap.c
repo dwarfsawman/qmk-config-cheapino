@@ -58,7 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                    KC_Q,            KC_X,            KC_M,            KC_C,
                    KC_V,            KC_K,            KC_P,          KC_DOT,
                 KC_MINS,         KC_COMM,    LT(2, KC_SPC),         KC_BSPC,
-                KC_DEL,   LT(1, KC_BTN1),    LT(1, KC_ENT),   LT(3, KC_BTN2)
+                KC_DEL,   LT(3, KC_BTN2),    LT(1, KC_ENT),   LT(1, KC_BTN1)
     ),
     [1] = LAYOUT_split_3x5_3(
                 KC_MINS,            KC_7,            KC_8,            KC_9,
@@ -102,7 +102,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                 KC_VOLD,         KC_VOLU,         KC_WH_L,         KC_WH_D,
                 KC_WH_U,         KC_WH_L,         KC_WH_D,         KC_WH_U,
                 KC_WH_R,           KC_NO,         KC_LALT,         KC_LSFT,
-                KC_LCTL,         KC_BTN1,         KC_BTN2,         KC_BTN3
+                KC_LCTL,         KC_BTN3,         KC_BTN2,         KC_BTN1
     )
 };
 
@@ -263,7 +263,7 @@ static bool mouse_layer_was_on;
 // One-time migration marker. A newly flashed board can still contain the
 // previous firmware's valid Vial EEPROM, which would otherwise hide the
 // Totem defaults compiled above. Once migrated, normal Vial edits persist.
-#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5436U
+#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5437U
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT_split_3x5_3(
