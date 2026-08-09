@@ -57,19 +57,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
            RGUI_T(KC_H),    RALT_T(KC_A),    RSFT_T(KC_E),     LT(4, KC_I),
                    KC_Q,            KC_X,            KC_M,            KC_C,
                    KC_V,            KC_K,            KC_P,          KC_DOT,
-                KC_MINS,         KC_COMM,          KC_DEL,    LT(2, KC_SPC),
-                KC_BSPC,    LT(1, KC_ENT),   LT(1, KC_BTN1),   LT(3, KC_BTN2)
+                KC_MINS,         KC_COMM,         KC_BSPC,          KC_DEL,
+          LT(2, KC_SPC),   LT(1, KC_BTN1),   LT(3, KC_BTN2),    LT(1, KC_ENT)
     ),
     [1] = LAYOUT_split_3x5_3(
-                KC_PMNS,           KC_P7,           KC_P8,           KC_P9,
-                KC_PPLS,         KC_PERC,           KC_UP,         KC_LPRN,
-                KC_RPRN,         KC_PDOT,           KC_P0,           KC_P4,
-                  KC_P5,           KC_P6,          KC_EQL,         KC_LEFT,
+                KC_MINS,            KC_7,            KC_8,            KC_9,
+                KC_PLUS,         KC_PERC,           KC_UP,         KC_LPRN,
+                KC_RPRN,          KC_DOT,            KC_0,            KC_4,
+                  KC_5,            KC_6,          KC_EQL,         KC_LEFT,
                 KC_RGUI,  RALT_T(KC_RGHT),  RSFT_T(KC_LBRC),  RCTL_T(KC_RBRC),
-                KC_PSLS,           KC_P1,           KC_P2,           KC_P3,
-                KC_PAST,         KC_HOME,         KC_PGDN,          KC_DOT,
+                KC_SLSH,            KC_1,            KC_2,            KC_3,
+                KC_ASTR,         KC_HOME,         KC_PGDN,          KC_DOT,
                  KC_END,            KC_X,         KC_TRNS,         KC_TRNS,
-               KC_TRNS,           KC_NO,         KC_TRNS,         KC_TRNS
+               KC_TRNS,         KC_TRNS,         KC_TRNS,           KC_NO
     ),
     [2] = LAYOUT_split_3x5_3(
                 KC_TILD,          KC_DOT,         KC_ASTR,         KC_AMPR,
@@ -79,8 +79,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        RGUI_T(KC_COMM),  RALT_T(KC_LBRC),  RSFT_T(KC_RBRC),  RCTL_T(KC_SCLN),
                  KC_GRV,         KC_QUOT,         KC_DQUO,         KC_PLUS,
                 KC_BSLS,         KC_HASH,         KC_CIRC,         KC_COLN,
-                 KC_EQL,          KC_DLR,         KC_TRNS,         KC_TRNS,
-                 KC_NO,         KC_TRNS,         KC_TRNS,         KC_TRNS
+                 KC_EQL,          KC_DLR,           KC_NO,         KC_TRNS,
+               KC_TRNS,         KC_TRNS,         KC_TRNS,         KC_TRNS
     ),
     [3] = LAYOUT_split_3x5_3(
                   KC_F1,           KC_F2,           KC_F3,           KC_F4,
@@ -101,8 +101,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                KC_LEFT,         KC_DOWN,         KC_RGHT,           KC_NO,
                 KC_VOLD,         KC_VOLU,         KC_WH_L,         KC_WH_D,
                 KC_WH_U,         KC_WH_L,         KC_WH_D,         KC_WH_U,
-                KC_WH_R,           KC_NO,         KC_LCTL,         KC_LALT,
-                KC_LSFT,         KC_BTN2,         KC_BTN1,         KC_BTN3
+                KC_WH_R,           KC_NO,         KC_LSFT,         KC_LCTL,
+                KC_LALT,         KC_BTN1,         KC_BTN3,         KC_BTN2
     )
 };
 
@@ -127,7 +127,7 @@ const vial_tap_dance_entry_t default_tap_dance_entries[] = {
 #if VIAL_COMBO_ENTRIES > 0
 const vial_combo_entry_t PROGMEM default_combo_entries[] = {
     COMBO_ENTRY(KC_L, KC_D, KC_NO, KC_NO, KC_TAB),
-    COMBO_ENTRY(KC_P7, KC_P8, KC_NO, KC_NO, KC_SPC),
+    COMBO_ENTRY(KC_7, KC_8, KC_NO, KC_NO, KC_SPC),
     COMBO_ENTRY(KC_X, KC_M, KC_NO, KC_NO, KC_DEL),
     COMBO_ENTRY(KC_LPRN, KC_RPRN, KC_NO, KC_NO, KC_BSPC),
     COMBO_ENTRY(LGUI_T(KC_S), LALT_T(KC_T), KC_NO, KC_NO, CK_IME),
@@ -263,7 +263,7 @@ static bool mouse_layer_was_on;
 // One-time migration marker. A newly flashed board can still contain the
 // previous firmware's valid Vial EEPROM, which would otherwise hide the
 // Totem defaults compiled above. Once migrated, normal Vial edits persist.
-#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F544DU
+#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5432U
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT_split_3x5_3(

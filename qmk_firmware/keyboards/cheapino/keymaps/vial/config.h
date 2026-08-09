@@ -24,6 +24,11 @@
 
 #define COMBO_TERM 30
 
+// This Cheapino2's onboard LED expects green before red. Without this
+// override, red appears green and orange/purple collapse into nearby colors.
+#undef WS2812_BYTE_ORDER
+#define WS2812_BYTE_ORDER WS2812_BYTE_ORDER_GRB
+
 // The LED can be dimmed or disabled, but firmware and Vial cannot exceed 5.
 #undef RGBLIGHT_DEFAULT_HUE
 #undef RGBLIGHT_DEFAULT_SAT
