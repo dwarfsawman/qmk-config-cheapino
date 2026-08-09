@@ -12,8 +12,8 @@ Totem にだけ存在する外側 2 キーと Bluetooth 操作は省いていま
 | Layer | 用途 | 色 |
 | --- | --- | --- |
 | 0 | Base | シアン |
-| 1 | Lower | オレンジ |
-| 2 | Upper | パープル |
+| 1 | Lower | イエロー |
+| 2 | Upper | マゼンタ |
 | 3 | Adjust | グリーン |
 | 4 | Mouse | レッド |
 

@@ -57,8 +57,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
            RGUI_T(KC_H),    RALT_T(KC_A),    RSFT_T(KC_E),     LT(4, KC_I),
                    KC_Q,            KC_X,            KC_M,            KC_C,
                    KC_V,            KC_K,            KC_P,          KC_DOT,
-                KC_MINS,         KC_COMM,         KC_BSPC,          KC_DEL,
-          LT(2, KC_SPC),   LT(1, KC_BTN1),   LT(3, KC_BTN2),    LT(1, KC_ENT)
+                KC_MINS,         KC_COMM,         KC_BSPC,    LT(2, KC_SPC),
+                KC_DEL,   LT(3, KC_BTN2),   LT(1, KC_BTN1),    LT(1, KC_ENT)
     ),
     [1] = LAYOUT_split_3x5_3(
                 KC_MINS,            KC_7,            KC_8,            KC_9,
@@ -101,8 +101,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                KC_LEFT,         KC_DOWN,         KC_RGHT,           KC_NO,
                 KC_VOLD,         KC_VOLU,         KC_WH_L,         KC_WH_D,
                 KC_WH_U,         KC_WH_L,         KC_WH_D,         KC_WH_U,
-                KC_WH_R,           KC_NO,         KC_LSFT,         KC_LCTL,
-                KC_LALT,         KC_BTN1,         KC_BTN3,         KC_BTN2
+                KC_WH_R,           KC_NO,         KC_LSFT,         KC_LALT,
+                KC_LCTL,         KC_BTN3,         KC_BTN1,         KC_BTN2
     )
 };
 
@@ -263,7 +263,7 @@ static bool mouse_layer_was_on;
 // One-time migration marker. A newly flashed board can still contain the
 // previous firmware's valid Vial EEPROM, which would otherwise hide the
 // Totem defaults compiled above. Once migrated, normal Vial edits persist.
-#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5432U
+#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5433U
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT_split_3x5_3(
@@ -278,30 +278,37 @@ static uint8_t active_layer(layer_state_t state) {
 }
 
 static void apply_layer_color(layer_state_t state) {
-    uint8_t hue;
-    switch (active_layer(state)) {
-        case L_LOWER:
-            hue = 21;  // orange
-            break;
-        case L_UPPER:
-            hue = 191; // purple
-            break;
-        case L_ADJUST:
-            hue = 85;  // green
-            break;
-        case L_MOUSE:
-            hue = 0;   // red
-            break;
-        default:
-            hue = 128; // cyan
-            break;
-    }
-
     uint8_t value = rgblight_get_val();
     if (value > RGBLIGHT_LIMIT_VAL) {
         value = RGBLIGHT_LIMIT_VAL;
     }
-    rgblight_sethsv_noeeprom(hue, 255, value);
+
+    uint8_t red   = 0;
+    uint8_t green = 0;
+    uint8_t blue  = 0;
+
+    // Use only fully-on or fully-off channels. At the intentionally tiny
+    // brightness limit of 5, partial HSV channels collapse visually into
+    // their dominant primary color.
+    switch (active_layer(state)) {
+        case L_LOWER:
+            red = green = value; // yellow
+            break;
+        case L_UPPER:
+            red = blue = value; // magenta
+            break;
+        case L_ADJUST:
+            green = value;
+            break;
+        case L_MOUSE:
+            red = value;
+            break;
+        default:
+            green = blue = value; // cyan
+            break;
+    }
+
+    rgblight_setrgb(red, green, blue);
 }
 
 void keyboard_post_init_user(void) {

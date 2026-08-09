@@ -24,8 +24,7 @@
 
 #define COMBO_TERM 30
 
-// This Cheapino2's onboard LED expects green before red. Without this
-// override, red appears green and orange/purple collapse into nearby colors.
+// This Cheapino2's onboard WS2812 expects green before red.
 #undef WS2812_BYTE_ORDER
 #define WS2812_BYTE_ORDER WS2812_BYTE_ORDER_GRB
 
