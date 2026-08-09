@@ -1,0 +1,74 @@
+name: Build Cheapino2 Vial firmware
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firmware-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VIAL_QMK_REF: dd43959ae5c08d8a28d38a1acf7b04e86b14a344
+  CHEAPINO_REFERENCE_REF: ec9377e4ca9da985456e2bd02a7bf5242d1a9490
+  SKIP_GIT: "yes"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli@sha256:2dc05fc9f32efebd6b05c2b8676ee548358bc7e151e9dbf4dac6b6eed4513b07
+
+    steps:
+      - name: Checkout keymap repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: target-repo
+          persist-credentials: false
+
+      - name: Checkout pinned Vial-QMK
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: vial-kb/vial-qmk
+          ref: ${{ env.VIAL_QMK_REF }}
+          path: vial-qmk
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Checkout pinned Cheapino v2 hardware source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: bleys43/cheapinov2-vial-qmk-firmware
+          ref: ${{ env.CHEAPINO_REFERENCE_REF }}
+          path: cheapino-reference
+          persist-credentials: false
+
+      - name: Assemble keyboard source
+        shell: bash
+        run: |
+          mkdir -p vial-qmk/keyboards/cheapino
+          cp -a cheapino-reference/cheapino/. vial-qmk/keyboards/cheapino/
+          cp -a target-repo/qmk_firmware/keyboards/cheapino/. vial-qmk/keyboards/cheapino/
+
+      - name: Compile UF2
+        working-directory: vial-qmk
+        shell: bash
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/vial-qmk"
+          qmk compile -kb cheapino -km vial
+          test -s .build/cheapino_vial.uf2
+          cp .build/cheapino_vial.uf2 .build/cheapino2-totem-vial.uf2
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cheapino2-totem-vial
+          path: vial-qmk/.build/cheapino2-totem-vial.uf2
+          if-no-files-found: error
+          retention-days: 30
+
