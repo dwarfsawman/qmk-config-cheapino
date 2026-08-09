@@ -28,11 +28,11 @@
 #undef WS2812_BYTE_ORDER
 #define WS2812_BYTE_ORDER WS2812_BYTE_ORDER_GRB
 
-// The LED can be dimmed or disabled, but firmware and Vial cannot exceed 5.
+// Keep the layer indicator at the dimmest non-off level.
 #undef RGBLIGHT_DEFAULT_HUE
 #undef RGBLIGHT_DEFAULT_SAT
 #undef RGBLIGHT_DEFAULT_VAL
 #define RGBLIGHT_DEFAULT_HUE 128
 #define RGBLIGHT_DEFAULT_SAT 255
-#define RGBLIGHT_DEFAULT_VAL 5
-#define RGBLIGHT_LIMIT_VAL 5
+#define RGBLIGHT_DEFAULT_VAL 1
+#define RGBLIGHT_LIMIT_VAL 1

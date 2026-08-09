@@ -57,8 +57,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
            RGUI_T(KC_H),    RALT_T(KC_A),    RSFT_T(KC_E),     LT(4, KC_I),
                    KC_Q,            KC_X,            KC_M,            KC_C,
                    KC_V,            KC_K,            KC_P,          KC_DOT,
-                KC_MINS,         KC_COMM,          KC_DEL,         KC_BSPC,
-         LT(2, KC_SPC),   LT(1, KC_BTN1),    LT(1, KC_ENT),   LT(3, KC_BTN2)
+                KC_MINS,         KC_COMM,    LT(2, KC_SPC),         KC_BSPC,
+                KC_DEL,   LT(1, KC_BTN1),    LT(1, KC_ENT),   LT(3, KC_BTN2)
     ),
     [1] = LAYOUT_split_3x5_3(
                 KC_MINS,            KC_7,            KC_8,            KC_9,
@@ -101,8 +101,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                KC_LEFT,         KC_DOWN,         KC_RGHT,           KC_NO,
                 KC_VOLD,         KC_VOLU,         KC_WH_L,         KC_WH_D,
                 KC_WH_U,         KC_WH_L,         KC_WH_D,         KC_WH_U,
-                KC_WH_R,           KC_NO,         KC_LCTL,         KC_LSFT,
-                KC_LALT,         KC_BTN1,         KC_BTN2,         KC_BTN3
+                KC_WH_R,           KC_NO,         KC_LALT,         KC_LSFT,
+                KC_LCTL,         KC_BTN1,         KC_BTN2,         KC_BTN3
     )
 };
 
@@ -263,7 +263,7 @@ static bool mouse_layer_was_on;
 // One-time migration marker. A newly flashed board can still contain the
 // previous firmware's valid Vial EEPROM, which would otherwise hide the
 // Totem defaults compiled above. Once migrated, normal Vial edits persist.
-#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5435U
+#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5436U
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT_split_3x5_3(
@@ -288,7 +288,7 @@ static void apply_layer_color(layer_state_t state) {
     uint8_t blue  = 0;
 
     // Use only fully-on or fully-off channels. At the intentionally tiny
-    // brightness limit of 5, partial HSV channels collapse visually into
+    // brightness limit of 1, partial HSV channels collapse visually into
     // their dominant primary color.
     switch (active_layer(state)) {
         case L_LOWER:
