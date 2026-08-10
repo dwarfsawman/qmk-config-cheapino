@@ -3,6 +3,10 @@
 
 #pragma once
 
+// Keep Caps Word available through its explicit combo, but do not activate it
+// when the two Shift keys inherited from Cheapino's keyboard config overlap.
+#undef BOTH_SHIFTS_TURNS_ON_CAPS_WORD
+
 // Preserve the UID of the firmware that shipped on this keyboard so the
 // pre-migration .vil backup remains restorable.
 #define VIAL_KEYBOARD_UID {0x79, 0xED, 0x40, 0xBB, 0x09, 0x8B, 0xC1, 0x9E}
