@@ -62,6 +62,8 @@ Vial の unlock キーは左右の最外上段キー（Base の `B` と `J`）�
 - Bluetooth profile、pairing、clear 操作は省略。
 - ZMK の shifted-symbol Hold-Tap は、QMK Mod-Tap の 8-bit 制限を避けるため
   Vial Tap Dance 3 エントリで再現。
+- `I / Layer 4` は ZMK の `ltt` と同じ Balanced 相当の 280 ms を維持し、
+  Home Row Mods 専用の prior-idle と反対側の手だけに限定する判定から除外。
 - Combo 0〜8 には元のレイヤー条件を手書きコードで適用。アプリキー Combo だけ
   60 ms、他は 30 ms。
 - Vial で調整した Mouse Keys の移動値（delay 10、interval 20、step 7、

@@ -260,6 +260,10 @@ void __wrap_dynamic_keymap_reset(void) {
 static bool i_key_is_control;
 static bool mouse_layer_was_on;
 
+static bool is_mouse_layer_tap(uint16_t keycode) {
+    return keycode == LT(L_MOUSE, KC_I);
+}
+
 // One-time migration marker. A newly flashed board can still contain the
 // previous firmware's valid Vial EEPROM, which would otherwise hide the
 // Totem defaults compiled above. Once migrated, normal Vial edits persist.
@@ -272,6 +276,17 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
         'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R',
         'L', 'L', 'L', 'R', 'R', 'R'
     );
+
+char chordal_hold_handedness(keypos_t key) {
+    keyevent_t event = {.key = key};
+
+    // Totem's ltt has no opposite-hand hold trigger. Treat this Layer-Tap as
+    // hand-neutral while preserving Chordal Hold for every Home Row Mod.
+    if (is_mouse_layer_tap(get_event_keycode(event, false))) {
+        return '*';
+    }
+    return (char)pgm_read_byte(&chordal_hold_layout[key.row][key.col]);
+}
 
 static uint8_t active_layer(layer_state_t state) {
     return get_highest_layer(state | default_layer_state);
@@ -385,6 +400,32 @@ void __wrap_qmk_settings_reset(void) {
     qmk_settings_set(27, &value16, sizeof(value16));  // Flow Tap
 }
 
+/*
+ * Totem's ZMK ltt behavior uses balanced 280/175 ms timing for I / Layer 4,
+ * but unlike its home-row mods it has neither require-prior-idle nor an
+ * opposite-hand hold trigger. QMK Settings applies Flow Tap and Chordal Hold
+ * globally, so bypass those two filters only for this Layer-Tap. Permissive
+ * Hold remains active and supplies the equivalent balanced interrupt rule.
+ */
+bool is_flow_tap_key(uint16_t keycode) {
+    if (is_mouse_layer_tap(keycode) ||
+        (get_mods() & (MOD_MASK_CG | MOD_BIT(KC_LALT))) != 0) {
+        return false;
+    }
+
+    switch (get_tap_keycode(keycode)) {
+        case KC_SPC:
+        case KC_A ... KC_Z:
+        case KC_DOT:
+        case KC_COMM:
+        case KC_SCLN:
+        case KC_SLSH:
+            return true;
+        default:
+            return false;
+    }
+}
+
 uint16_t __real_get_combo_term(uint16_t combo_index, combo_t *combo);
 uint16_t __wrap_get_combo_term(uint16_t combo_index, combo_t *combo) {
     if (combo_index == 7) {
@@ -401,7 +442,7 @@ static bool modifier_morphs_i_to_control(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (keycode == LT(L_MOUSE, KC_I)) {
+    if (is_mouse_layer_tap(keycode)) {
         if (record->event.pressed && modifier_morphs_i_to_control()) {
             i_key_is_control = true;
             add_weak_mods(MOD_BIT(KC_LCTL));
