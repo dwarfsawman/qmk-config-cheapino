@@ -1,0 +1,278 @@
+diff --git a/quantum/action_tapping.c b/quantum/action_tapping.c
+index b105cd60..3f32c7d9 100644
+--- a/quantum/action_tapping.c
++++ b/quantum/action_tapping.c
+@@ -430,9 +430,16 @@ bool process_tapping(keyrecord_t *keyp) {
++#        if !defined(CHORDAL_HOLD_TRIGGER_ON_RELEASE)
+                             if (!is_tap_record(keyp)) {
+                                 ac_dprintf("Tapping: End. Chord considered a tap\n");
+                                 tapping_key.tap.count = 1;
+                                 registered_taps_add(tapping_key.event.key);
+                                 debug_registered_taps();
+                                 process_record(&tapping_key);
+                                 tapping_key = (keyrecord_t){0};
+                             }
++#        else
++                            // Like ZMK's hold-trigger-on-release, defer the
++                            // positional decision until the other key is
++                            // released. If TAPPING_TERM expires first, the
++                            // tap-hold key settles as held in the timeout path.
++#        endif
+                         } else
+ #    endif // CHORDAL_HOLD
+                             if (TAP_GET_HOLD_ON_OTHER_KEY_PRESS
+diff --git a/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/config.h b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/config.h
+new file mode 100644
+index 00000000..be809168
+--- /dev/null
++++ b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/config.h
+@@ -0,0 +1,13 @@
++// Copyright 2026 dwarfsawman
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#pragma once
++
++#include "test_common.h"
++
++#undef TAPPING_TERM
++#define TAPPING_TERM 280
++#define CHORDAL_HOLD
++#define CHORDAL_HOLD_TRIGGER_ON_RELEASE
++#define PERMISSIVE_HOLD
++#define FLOW_TAP_TERM 125
+diff --git a/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test.mk b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test.mk
+new file mode 100644
+index 00000000..908f54cd
+--- /dev/null
++++ b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test.mk
+@@ -0,0 +1,4 @@
++# Copyright 2026 dwarfsawman
++# SPDX-License-Identifier: GPL-2.0-or-later
++
++INTROSPECTION_KEYMAP_C = test_keymap.c
+diff --git a/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test_keymap.c b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test_keymap.c
+new file mode 100644
+index 00000000..0115f650
+--- /dev/null
++++ b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test_keymap.c
+@@ -0,0 +1,27 @@
++// Copyright 2026 dwarfsawman
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#include "quantum.h"
++
++const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
++    {'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R'},
++    {'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R'},
++    {'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R'},
++    {'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R'},
++};
++
++static bool is_thumb_position(keypos_t key) {
++    return key.row == 2 && key.col == 0;
++}
++
++bool get_chordal_hold(uint16_t tap_hold_keycode,
++                      keyrecord_t *tap_hold_record,
++                      uint16_t other_keycode,
++                      keyrecord_t *other_record) {
++    (void)other_keycode;
++    if (IS_QK_MOD_TAP(tap_hold_keycode) &&
++        is_thumb_position(other_record->event.key)) {
++        return true;
++    }
++    return get_chordal_hold_default(tap_hold_record, other_record);
++}
+diff --git a/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test_tap_hold.cpp b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test_tap_hold.cpp
+new file mode 100644
+index 00000000..14ad776b
+--- /dev/null
++++ b/tests/tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release/test_tap_hold.cpp
+@@ -0,0 +1,187 @@
++// Copyright 2026 dwarfsawman
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#include "keyboard_report_util.hpp"
++#include "keycode.h"
++#include "test_common.hpp"
++#include "action_tapping.h"
++#include "test_fixture.hpp"
++#include "test_keymap_key.hpp"
++
++using testing::_;
++using testing::InSequence;
++
++class ChordalHoldTriggerOnRelease : public TestFixture {};
++
++TEST_F(ChordalHoldTriggerOnRelease, same_hand_key_held_past_tapping_term_uses_hold) {
++    TestDriver driver;
++    InSequence sequence;
++    auto ctrl_n = KeymapKey(0, 1, 0, LCTL_T(KC_N));
++    auto v      = KeymapKey(0, 2, 0, KC_V);
++
++    set_keymap({ctrl_n, v});
++
++    EXPECT_NO_REPORT(driver);
++    ctrl_n.press();
++    run_one_scan_loop();
++    idle_for(237); // Reproduce the measured Ctrl/N-to-V interval.
++    v.press();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL));
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL, KC_V));
++    idle_for(TAPPING_TERM + 1);
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL));
++    v.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_EMPTY_REPORT(driver);
++    ctrl_n.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++}
++
++TEST_F(ChordalHoldTriggerOnRelease, same_hand_key_released_within_tapping_term_uses_tap) {
++    TestDriver driver;
++    InSequence sequence;
++    auto ctrl_n = KeymapKey(0, 1, 0, LCTL_T(KC_N));
++    auto v      = KeymapKey(0, 2, 0, KC_V);
++
++    set_keymap({ctrl_n, v});
++
++    EXPECT_NO_REPORT(driver);
++    ctrl_n.press();
++    run_one_scan_loop();
++    idle_for(100);
++    v.press();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_REPORT(driver, (KC_N));
++    EXPECT_REPORT(driver, (KC_N, KC_V));
++    EXPECT_REPORT(driver, (KC_N));
++    v.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_EMPTY_REPORT(driver);
++    ctrl_n.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++}
++
++TEST_F(ChordalHoldTriggerOnRelease, opposite_hand_key_release_uses_permissive_hold) {
++    TestDriver driver;
++    InSequence sequence;
++    auto ctrl_n = KeymapKey(0, 1, 0, LCTL_T(KC_N));
++    auto v      = KeymapKey(0, MATRIX_COLS - 1, 0, KC_V);
++
++    set_keymap({ctrl_n, v});
++
++    EXPECT_NO_REPORT(driver);
++    ctrl_n.press();
++    run_one_scan_loop();
++    v.press();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL));
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL, KC_V));
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL));
++    v.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_EMPTY_REPORT(driver);
++    ctrl_n.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++}
++
++TEST_F(ChordalHoldTriggerOnRelease, thumb_key_release_uses_permissive_hold_for_mod_tap) {
++    TestDriver driver;
++    InSequence sequence;
++    auto ctrl_n    = KeymapKey(0, 1, 0, LCTL_T(KC_N));
++    auto thumb_key = KeymapKey(0, 0, 2, KC_SPC);
++
++    set_keymap({ctrl_n, thumb_key});
++
++    EXPECT_NO_REPORT(driver);
++    ctrl_n.press();
++    run_one_scan_loop();
++    thumb_key.press();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL));
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL, KC_SPC));
++    EXPECT_REPORT(driver, (KC_LEFT_CTRL));
++    thumb_key.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_EMPTY_REPORT(driver);
++    ctrl_n.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++}
++
++TEST_F(ChordalHoldTriggerOnRelease, thumb_layer_tap_keeps_its_own_hand_behavior) {
++    TestDriver driver;
++    InSequence sequence;
++    auto thumb_layer_tap = KeymapKey(0, 0, 2, LT(1, KC_SPC));
++    auto v               = KeymapKey(0, 2, 0, KC_V);
++
++    set_keymap({thumb_layer_tap, v});
++
++    EXPECT_NO_REPORT(driver);
++    thumb_layer_tap.press();
++    run_one_scan_loop();
++    v.press();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_REPORT(driver, (KC_SPC));
++    EXPECT_REPORT(driver, (KC_SPC, KC_V));
++    EXPECT_REPORT(driver, (KC_SPC));
++    v.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_EMPTY_REPORT(driver);
++    thumb_layer_tap.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++}
++
++TEST_F(ChordalHoldTriggerOnRelease, flow_tap_still_forces_tap_after_recent_typing) {
++    TestDriver driver;
++    InSequence sequence;
++    auto u      = KeymapKey(0, 0, 0, KC_U);
++    auto ctrl_n = KeymapKey(0, 1, 0, LCTL_T(KC_N));
++
++    set_keymap({u, ctrl_n});
++
++    EXPECT_REPORT(driver, (KC_U));
++    EXPECT_EMPTY_REPORT(driver);
++    tap_key(u);
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_REPORT(driver, (KC_N));
++    ctrl_n.press();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_NO_REPORT(driver);
++    idle_for(TAPPING_TERM + 1);
++    VERIFY_AND_CLEAR(driver);
++
++    EXPECT_EMPTY_REPORT(driver);
++    ctrl_n.release();
++    run_one_scan_loop();
++    VERIFY_AND_CLEAR(driver);
++}

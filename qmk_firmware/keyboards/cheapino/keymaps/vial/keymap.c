@@ -9,6 +9,7 @@
 
 /* USER INCLUDE BEGIN */
 #include "mousekey.h"
+#include "vial.h"
 
 enum cheapino_layers {
     L_BASE,
@@ -288,6 +289,29 @@ char chordal_hold_handedness(keypos_t key) {
     return (char)pgm_read_byte(&chordal_hold_layout[key.row][key.col]);
 }
 
+static bool is_thumb_position(keypos_t key) {
+    return (key.col == 11 && key.row >= 4 && key.row <= 6) ||
+           (key.col == 5 && key.row <= 2);
+}
+
+bool __real_get_chordal_hold(uint16_t tap_hold_keycode,
+                             keyrecord_t *tap_hold_record,
+                             uint16_t other_keycode,
+                             keyrecord_t *other_record);
+bool __wrap_get_chordal_hold(uint16_t tap_hold_keycode,
+                             keyrecord_t *tap_hold_record,
+                             uint16_t other_keycode,
+                             keyrecord_t *other_record) {
+    // ZMK hml triggers are asymmetric: a thumb triggers either hand's HRM,
+    // but an HRM key does not change a thumb Layer-Tap's own hand behavior.
+    if (IS_QK_MOD_TAP(tap_hold_keycode) &&
+        is_thumb_position(other_record->event.key)) {
+        return true;
+    }
+    return __real_get_chordal_hold(tap_hold_keycode, tap_hold_record,
+                                   other_keycode, other_record);
+}
+
 static uint8_t active_layer(layer_state_t state) {
     return get_highest_layer(state | default_layer_state);
 }
@@ -329,6 +353,10 @@ static void apply_layer_color(layer_state_t state) {
 void keyboard_post_init_user(void) {
     if (eeconfig_read_user() != TOTEM_EEPROM_MIGRATION_MARKER) {
         dynamic_keymap_reset();
+        // vial_init() runs earlier during keyboard_setup(), so its cached
+        // combos and key overrides still reflect the pre-migration EEPROM
+        // layout. Reload them after writing the new defaults.
+        vial_init();
         eeconfig_update_user(TOTEM_EEPROM_MIGRATION_MARKER);
     }
 

@@ -12,3 +12,4 @@ QMK_SETTINGS = yes
 LDFLAGS += -Wl,-wrap=dynamic_keymap_reset
 LDFLAGS += -Wl,-wrap=qmk_settings_reset
 LDFLAGS += -Wl,-wrap=get_combo_term
+LDFLAGS += -Wl,-wrap=get_chordal_hold

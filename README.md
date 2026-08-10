@@ -48,6 +48,17 @@ GitHub Actions は Cheapino のハードウェアソースを取得し、この�
 `qmk_firmware/keyboards/cheapino` を上書きしてビルドします。上流の起動時
 レインボー処理は無効化しているため、起動時も明るさ 5 を超えません。
 
+固定した Vial-QMK には ZMK の `hold-trigger-on-release` がないため、ビルド時に
+`patches/vial-qmk-hold-trigger-on-release.patch` を適用します。このパッチは
+Chordal Hold の手判定を次キーの押下ではなく最初のリリースまで保留します。
+
+- 次キーを 280 ms より前に離した場合、同手なら Home Row Mod はタップ。
+- 次キーを離す前に 280 ms が経過した場合、Home Row Mod はホールド。
+- 反対手または親指を先に離した場合、Permissive Hold によりホールド。
+- Quick Tap 175 ms と Flow Tap 125 ms の判定は従来どおり先に適用。
+
+GitHub Actions はこの6経路を単体テストしてから UF2 をコンパイルします。
+
 ## 書き込み
 
 Vial の `Security` から unlock した状態で bootloader reboot を実行するか、
@@ -64,6 +75,9 @@ Vial の unlock キーは左右の最外上段キー（Base の `B` と `J`）�
   Vial Tap Dance 3 エントリで再現。
 - `I / Layer 4` は ZMK の `ltt` と同じ Balanced 相当の 280 ms を維持し、
   Home Row Mods 専用の prior-idle と反対側の手だけに限定する判定から除外。
+- Home Row Mods は ZMK の `hold-trigger-on-release` と同じく、位置判定を
+  次キーのリリースまで保留。全親指キーは左右どちらの Home Row Mod に
+  対しても hold-trigger として扱う（親指自身の Layer-Tap 判定は変更しない）。
 - Combo 0〜8 には元のレイヤー条件を手書きコードで適用。アプリキー Combo だけ
   60 ms、他は 30 ms。
 - Vial で調整した Mouse Keys の移動値（delay 10、interval 20、step 7、

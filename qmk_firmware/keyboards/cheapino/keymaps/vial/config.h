@@ -21,6 +21,9 @@
 #define TAPPING_TERM 280
 #define QUICK_TAP_TERM 175
 #define PERMISSIVE_HOLD
+// Defer Chordal Hold's positional decision to the other key's release, as
+// ZMK's hold-trigger-on-release does. The pinned Vial-QMK patch implements it.
+#define CHORDAL_HOLD_TRIGGER_ON_RELEASE
 
 #define COMBO_TERM 30
 

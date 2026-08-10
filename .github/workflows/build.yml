@@ -48,6 +48,18 @@ jobs:
           path: cheapino-reference
           persist-credentials: false
 
+      - name: Apply ZMK hold-trigger-on-release compatibility patch
+        working-directory: vial-qmk
+        shell: bash
+        run: |
+          git apply --check "$GITHUB_WORKSPACE/target-repo/patches/vial-qmk-hold-trigger-on-release.patch"
+          git apply "$GITHUB_WORKSPACE/target-repo/patches/vial-qmk-hold-trigger-on-release.patch"
+
+      - name: Test tap-hold decision behavior
+        working-directory: vial-qmk
+        shell: bash
+        run: qmk test-c --test tap_hold_configurations/chordal_hold/permissive_hold_trigger_on_release
+
       - name: Assemble keyboard source
         shell: bash
         run: |
