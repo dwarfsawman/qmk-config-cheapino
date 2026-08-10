@@ -135,7 +135,9 @@ const vial_combo_entry_t PROGMEM default_combo_entries[] = {
     COMBO_ENTRY(KC_G, LGUI_T(KC_S), KC_Y, KC_NO, CW_TOGG),
     COMBO_ENTRY(KC_MS_L, KC_MS_D, KC_MS_R, KC_NO, CK_ALT_F4),
     COMBO_ENTRY(LGUI_T(KC_S), LSFT_T(KC_R), KC_NO, KC_NO, KC_APP),
-    COMBO_ENTRY(KC_C, KC_M, KC_NO, KC_NO, KC_F13)
+    COMBO_ENTRY(KC_C, KC_M, KC_NO, KC_NO, KC_F13),
+    COMBO_ENTRY(KC_N, KC_R, KC_NO, KC_NO, KC_ESC),
+    COMBO_ENTRY(KC_E, KC_I, KC_NO, KC_NO, KC_TAB)
 };
 #endif
 
@@ -390,6 +392,8 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo,
         case 2:
         case 4:
         case 7:
+        case 9:
+        case 10:
             return layer == L_BASE;
         case 1:
             return layer == L_LOWER;
