@@ -64,6 +64,11 @@ Vial の unlock キーは左右の最外上段キー（Base の `B` と `J`）�
   Vial Tap Dance 3 エントリで再現。
 - Combo 0〜8 には元のレイヤー条件を手書きコードで適用。アプリキー Combo だけ
   60 ms、他は 30 ms。
+- Vial で調整した Mouse Keys の移動値（delay 10、interval 20、step 7、
+  max speed 7、time to max 24）とホイール値（delay 10、interval 80、
+  max speed 4、time to max 33）を初期値として保持。
+- Mouse Key が重なったときは加速段階を 0 に戻し、方向転換時に直前の加速を
+  引き継がない。
 - Mouse layer を離れた時は移動・スクロール状態を明示的に解除。
 
 書き込み前の接続済みキーボード設定はローカルの

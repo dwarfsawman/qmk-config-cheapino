@@ -24,6 +24,23 @@
 
 #define COMBO_TERM 30
 
+// QMK Settings defaults captured from the connected keyboard after tuning
+// the Mouse Keys controls in Vial.
+#define MOUSEKEY_DELAY 10
+#define MOUSEKEY_INTERVAL 20
+#define MOUSEKEY_MOVE_DELTA 7
+#define MOUSEKEY_MAX_SPEED 7
+#define MOUSEKEY_TIME_TO_MAX 24
+#define MOUSEKEY_WHEEL_DELAY 10
+#define MOUSEKEY_WHEEL_INTERVAL 80
+#define MOUSEKEY_WHEEL_MAX_SPEED 4
+#define MOUSEKEY_WHEEL_TIME_TO_MAX 33
+
+// A newly pressed direction starts again at the initial speed instead of
+// inheriting the acceleration of an overlapping Mouse Key.
+#define MOUSEKEY_OVERLAP_RESET
+#define MOUSEKEY_OVERLAP_MOVE_DELTA 0
+
 // This Cheapino2's onboard WS2812 expects green before red.
 #undef WS2812_BYTE_ORDER
 #define WS2812_BYTE_ORDER WS2812_BYTE_ORDER_GRB
