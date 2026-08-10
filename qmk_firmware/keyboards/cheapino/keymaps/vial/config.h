@@ -12,8 +12,8 @@
 #define DYNAMIC_KEYMAP_LAYER_COUNT 5
 // Keep Tap Dance and Combo slot counts equal as a compatibility workaround
 // for vial-keymap-c-editor f142b1b, which swaps these two counts while parsing.
-#define VIAL_TAP_DANCE_ENTRIES 9
-#define VIAL_COMBO_ENTRIES 9
+#define VIAL_TAP_DANCE_ENTRIES 32
+#define VIAL_COMBO_ENTRIES 32
 #define VIAL_KEY_OVERRIDE_ENTRIES 4
 
 // ZMK hold-tap values from the Totem configuration.

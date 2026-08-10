@@ -263,7 +263,7 @@ static bool mouse_layer_was_on;
 // One-time migration marker. A newly flashed board can still contain the
 // previous firmware's valid Vial EEPROM, which would otherwise hide the
 // Totem defaults compiled above. Once migrated, normal Vial edits persist.
-#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5437U
+#define TOTEM_EEPROM_MIGRATION_MARKER 0x544F5438U
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT_split_3x5_3(
